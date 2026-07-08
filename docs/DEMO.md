@@ -182,3 +182,7 @@ terraform -chdir=infra destroy -var-file=environments/dev.tfvars
 
 > Der Terraform-State (`rg-tfstate` / Storage Account) wird out-of-band angelegt
 > und bewusst **nicht** von Terraform verwaltet (Henne-Ei-Problem).
+
+> **Bekanntes Teardown-Detail:** `terraform destroy` kann am Node-Pool-Drain
+> hängen (PodDisruptionBudgets blockieren die Eviction). Workaround + offene
+> Terraform-Lösung siehe [`teardown-and-audit.md`](teardown-and-audit.md).
