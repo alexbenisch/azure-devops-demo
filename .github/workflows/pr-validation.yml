@@ -1,0 +1,42 @@
+name: PR Validation
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+      - name: Terraform fmt
+        run: terraform -chdir=infra fmt -check -recursive
+
+      - name: Install linters
+        run: |
+          pip install yamllint
+          curl -sSL https://github.com/yannh/kubeconform/releases/latest/download/kubeconform-linux-amd64.tar.gz \
+            | tar -xz -C /usr/local/bin kubeconform
+
+      - name: YAML Lint
+        run: yamllint -d relaxed gitops apps observability
+
+      - name: Kubeconform (App-Manifeste)
+        run: kubeconform -strict -ignore-missing-schemas apps/sample-api/k8s/
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Test sample-api
+        working-directory: apps/sample-api
+        run: |
+          pip install -r requirements-dev.txt
+          pytest -q --cov=src

@@ -1,0 +1,43 @@
+# Prometheus-Alert-Regeln als CRD (PrometheusRule) — wird vom kube-prometheus-stack
+# per ruleSelector automatisch übernommen.
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: app-health
+  namespace: monitoring
+  labels:
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: app-health
+      rules:
+        - alert: PodCrashLooping
+          expr: rate(kube_pod_container_status_restarts_total{namespace="app"}[5m]) > 0
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Pod {{ $labels.pod }} crash-loopt"
+            runbook: "observability/runbooks/crashloop.md"
+
+        - alert: HighPodCpu
+          expr: |
+            sum(rate(container_cpu_usage_seconds_total{namespace="app"}[5m])) by (pod)
+              / sum(kube_pod_container_resource_limits{namespace="app",resource="cpu"}) by (pod) > 0.9
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Pod {{ $labels.pod }} nahe am CPU-Limit (>90%)"
+            runbook: "observability/runbooks/high-cpu.md"
+
+        - alert: DeploymentReplicasMismatch
+          expr: |
+            kube_deployment_spec_replicas{namespace="app"}
+              != kube_deployment_status_replicas_available{namespace="app"}
+          for: 10m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Deployment {{ $labels.deployment }} hat nicht alle Replicas verfügbar"
+            runbook: "observability/runbooks/rollout-stuck.md"

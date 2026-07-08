@@ -1,0 +1,36 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: ingress-nginx
+  namespace: ingress-nginx
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: ingress-nginx
+      version: "4.11.x"
+      sourceRef:
+        kind: HelmRepository
+        name: ingress-nginx
+        namespace: flux-system
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    remediation:
+      retries: 3
+  values:
+    controller:
+      replicaCount: 2
+      service:
+        annotations:
+          # Interner Azure LB reicht für die Demo; für Public "false" setzen.
+          service.beta.kubernetes.io/azure-load-balancer-internal: "false"
+      metrics:
+        enabled: true          # Prometheus scrapt den Controller
+        serviceMonitor:
+          enabled: true
+      resources:
+        requests:
+          cpu: 100m
+          memory: 128Mi

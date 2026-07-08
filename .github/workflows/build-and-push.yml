@@ -1,0 +1,56 @@
+name: Build & Push Image
+on:
+  push:
+    branches: [main]
+    paths: ["apps/**"]
+
+permissions:
+  id-token: write
+  contents: write        # write => GitOps-Manifest-Update (Image-Tag)
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      ACR: acrdevopsdev.azurecr.io
+      REGISTRY: acrdevopsdev
+      IMAGE: sample-api
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Python Tests
+        working-directory: apps/sample-api
+        run: |
+          pip install -r requirements-dev.txt
+          pytest -q --cov=src
+
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: ACR Login & Build
+        run: |
+          az acr login --name "$REGISTRY"
+          TAG=${GITHUB_SHA::7}
+          docker build -t "$ACR/$IMAGE:$TAG" apps/sample-api
+          docker push "$ACR/$IMAGE:$TAG"
+          echo "TAG=$TAG" >> "$GITHUB_ENV"
+
+      - name: Trivy Image Scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.ACR }}/${{ env.IMAGE }}:${{ env.TAG }}
+          severity: CRITICAL,HIGH
+          exit-code: "1"
+
+      # GitOps: Image-Tag im Manifest aktualisieren => Flux deployt automatisch.
+      - name: Update GitOps Manifest
+        run: |
+          sed -i "s|image: .*sample-api:.*|image: $ACR/$IMAGE:$TAG|" \
+            apps/sample-api/k8s/deployment.yaml
+          git config user.name "ci-bot"
+          git config user.email "ci-bot@demo.local"
+          git commit -am "chore: bump sample-api to $TAG"
+          git push

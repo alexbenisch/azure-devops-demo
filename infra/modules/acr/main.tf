@@ -1,0 +1,11 @@
+resource "azurerm_container_registry" "this" {
+  name                = var.registry_name
+  resource_group_name = var.resource_group_name
+  location            = var.location
+  sku                 = var.sku
+
+  # Admin-User deaktiviert => Zugriff nur über Azure AD / Managed Identity.
+  admin_enabled = false
+
+  tags = var.tags
+}

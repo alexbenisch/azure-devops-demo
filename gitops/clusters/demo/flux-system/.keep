@@ -1,0 +1,2 @@
+# Platzhalter — hier legt `flux bootstrap` gotk-components.yaml, gotk-sync.yaml
+# und kustomization.yaml ab (siehe scripts/bootstrap.sh).

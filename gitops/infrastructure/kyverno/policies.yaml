@@ -1,0 +1,49 @@
+# Policy-as-Code: erzwingt Security-Baselines clusterweit.
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-non-root
+  annotations:
+    policies.kyverno.io/title: Non-root Container erzwingen
+spec:
+  validationFailureAction: Enforce
+  background: true
+  rules:
+    - name: check-runasnonroot
+      match:
+        any:
+          - resources:
+              kinds: ["Pod"]
+              namespaces: ["app"]
+      validate:
+        message: "Container müssen runAsNonRoot=true setzen."
+        pattern:
+          spec:
+            =(securityContext):
+              =(runAsNonRoot): true
+            containers:
+              - =(securityContext):
+                  =(runAsNonRoot): true
+---
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: allowed-image-registries
+  annotations:
+    policies.kyverno.io/title: Nur Images aus der eigenen ACR
+spec:
+  validationFailureAction: Enforce
+  background: true
+  rules:
+    - name: validate-registry
+      match:
+        any:
+          - resources:
+              kinds: ["Pod"]
+              namespaces: ["app"]
+      validate:
+        message: "Images müssen aus acrdevopsdev.azurecr.io stammen."
+        pattern:
+          spec:
+            containers:
+              - image: "acrdevopsdev.azurecr.io/*"

@@ -1,0 +1,18 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: apps
+  namespace: flux-system
+spec:
+  interval: 5m
+  retryInterval: 1m
+  timeout: 3m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: ./apps/sample-api/k8s
+  prune: true
+  wait: true
+  # Apps erst deployen, wenn die Infrastruktur (Ingress, cert-manager, RBAC) steht.
+  dependsOn:
+    - name: infrastructure

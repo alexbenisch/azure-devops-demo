@@ -1,0 +1,40 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "schemaVersion": 39,
+  "title": "Sample API — Overview",
+  "tags": ["demo", "sample-api"],
+  "time": { "from": "now-1h", "to": "now" },
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Verfügbare Replicas",
+      "gridPos": { "h": 6, "w": 6, "x": 0, "y": 0 },
+      "targets": [
+        {
+          "expr": "kube_deployment_status_replicas_available{namespace=\"app\",deployment=\"sample-api\"}"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "CPU pro Pod (cores)",
+      "gridPos": { "h": 8, "w": 12, "x": 6, "y": 0 },
+      "targets": [
+        {
+          "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=\"app\",pod=~\"sample-api.*\"}[5m])) by (pod)"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "HTTP-Requests/s (Ingress)",
+      "gridPos": { "h": 8, "w": 18, "x": 0, "y": 8 },
+      "targets": [
+        {
+          "expr": "sum(rate(nginx_ingress_controller_requests{namespace=\"app\"}[5m])) by (status)"
+        }
+      ]
+    }
+  ]
+}

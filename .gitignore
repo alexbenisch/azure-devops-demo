@@ -1,0 +1,30 @@
+# Internes Konzept-/Vorbereitungsdokument — nicht öffentlich committen
+azure-devops-demo-konzept.md
+*-konzept.md
+
+# Secrets / lokale Env-Dateien
+.env
+*.env
+*.tfvars.local
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+*.tfplan
+tfplan
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+
+# Editor / OS
+.DS_Store
+.idea/
+.vscode/

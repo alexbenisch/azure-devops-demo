@@ -1,0 +1,49 @@
+# Let's-Encrypt-Issuer mit Cloudflare DNS-01-Challenge.
+#
+# DNS-01 (statt HTTP-01) erlaubt Wildcard-Zertifikate und funktioniert auch,
+# wenn der Ingress nicht öffentlich erreichbar ist.
+#
+# Voraussetzung: Secret `cloudflare-api-token` im Namespace cert-manager mit dem
+# Schlüssel `api-token`. NICHT im Git committen — via Key Vault CSI oder:
+#   kubectl -n cert-manager create secret generic cloudflare-api-token \
+#     --from-literal=api-token=<TOKEN>
+# Der Token braucht die Rechte: Zone:Read + DNS:Edit auf die betroffene Zone.
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-prod
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: alexander.benisch@gmail.com
+    privateKeySecretRef:
+      name: letsencrypt-prod-account-key
+    solvers:
+      - dns01:
+          cloudflare:
+            apiTokenSecretRef:
+              name: cloudflare-api-token
+              key: api-token
+        selector:
+          dnsZones:
+            - demo.local
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-staging
+spec:
+  acme:
+    server: https://acme-staging-v02.api.letsencrypt.org/directory
+    email: alexander.benisch@gmail.com
+    privateKeySecretRef:
+      name: letsencrypt-staging-account-key
+    solvers:
+      - dns01:
+          cloudflare:
+            apiTokenSecretRef:
+              name: cloudflare-api-token
+              key: api-token
+        selector:
+          dnsZones:
+            - demo.local

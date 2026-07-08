@@ -1,0 +1,52 @@
+# Azure DevOps YAML-Äquivalent zu build-and-push.yml — für die Frage
+# „GitHub Actions oder Azure DevOps?" ist beides vorhanden.
+trigger:
+  branches:
+    include: [main]
+  paths:
+    include: [apps/*]
+
+variables:
+  acrName: acrdevopsdev
+  imageName: sample-api
+
+stages:
+  - stage: Build
+    jobs:
+      - job: BuildTestPush
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - task: UsePythonVersion@0
+            inputs:
+              versionSpec: "3.12"
+
+          - script: |
+              pip install -r requirements-dev.txt
+              pytest -q --cov=src
+            workingDirectory: apps/sample-api
+            displayName: Test
+
+          - task: AzureCLI@2
+            inputs:
+              azureSubscription: "sc-demo"      # Service Connection (Workload Identity)
+              scriptType: bash
+              scriptLocation: inlineScript
+              inlineScript: |
+                TAG=$(Build.SourceVersion)
+                az acr login --name $(acrName)
+                docker build -t $(acrName).azurecr.io/$(imageName):${TAG:0:7} apps/sample-api
+                docker push  $(acrName).azurecr.io/$(imageName):${TAG:0:7}
+            displayName: Build & Push
+
+  - stage: Deploy
+    dependsOn: Build
+    jobs:
+      - deployment: GitOpsSync
+        environment: demo            # Approval-Gate möglich
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - script: echo "Flux zieht den neuen Tag automatisch — kein kubectl apply nötig."
+                  displayName: GitOps Hinweis
