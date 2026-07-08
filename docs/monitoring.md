@@ -121,7 +121,40 @@ wird über den Sidecar (Label `grafana_dashboard`) zusätzlich geladen.
 
 ---
 
-## 6. Zugriff (lokal, ohne Ingress)
+## 6. Screenshots (Grafana, Live-Cluster 2026-07-08)
+
+**Data sources** — Prometheus (default) + Alertmanager, provisioniert:
+
+![Grafana Data sources](screenshots/grafana-datasources.png)
+
+**Kubernetes / Compute Resources / Cluster** — CPU/Memory Commitment & Utilisation
+über den Cluster (CPU Requests Commitment 73 %, Memory 25 %):
+
+![Compute Resources / Cluster](screenshots/grafana-compute-resources-cluster.png)
+
+**Node Exporter / Nodes** — CPU, Load, Memory (44,6 %), Disk & Netzwerk pro Node:
+
+![Node Exporter / Nodes](screenshots/grafana-node-exporter.png)
+
+**Kubernetes / API server** — SLO/Verfügbarkeit (99,879 % 30d) und Request-Raten:
+
+![API server SLO](screenshots/grafana-apiserver-slo.png)
+
+![API server Requests](screenshots/grafana-apiserver-requests.png)
+
+**Prometheus / Overview** — Discovery, Scrape-Health, Storage (Head Series/Chunks):
+
+![Prometheus Overview](screenshots/grafana-prometheus-overview.png)
+
+![Prometheus Targets](screenshots/grafana-prometheus-targets.png)
+
+**Alertmanager / Overview** — Alerts & Notification-Raten je Receiver:
+
+![Alertmanager Overview](screenshots/grafana-alertmanager-overview.png)
+
+---
+
+## 7. Zugriff (lokal, ohne Ingress)
 
 ```bash
 # Grafana (admin / prom-operator — Default des Charts, in Prod aus Key Vault)
@@ -141,7 +174,7 @@ Sidecar (Label `grafana_dashboard`), inkl. der Default-Kubernetes-Dashboards.
 
 ---
 
-## 7. Fehlerbehebungs-Workflow (Talking Point)
+## 8. Fehlerbehebungs-Workflow (Talking Point)
 
 `kubectl get events` → `kubectl describe pod` → `kubectl logs --previous` →
 Grafana-Dashboard → Log-Analytics-KQL. Jeder Prometheus-Alert verlinkt auf ein
