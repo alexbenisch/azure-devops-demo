@@ -28,7 +28,37 @@ variable "location" {
 variable "kubernetes_version" {
   type        = string
   description = "AKS Kubernetes-Version."
-  default     = "1.29"
+  default     = "1.35"
+}
+
+variable "aks_vm_size" {
+  type        = string
+  description = "VM-Größe der AKS-Node-Pools (Referenz: Standard_D2s_v5; Quota-Override möglich)."
+  default     = "Standard_D2s_v5"
+}
+
+variable "aks_system_node_min" {
+  type        = number
+  description = "Min. Nodes im System-Pool."
+  default     = 1
+}
+
+variable "aks_system_node_max" {
+  type        = number
+  description = "Max. Nodes im System-Pool."
+  default     = 3
+}
+
+variable "aks_user_node_min" {
+  type        = number
+  description = "Min. Nodes im User-Pool."
+  default     = 1
+}
+
+variable "aks_user_node_max" {
+  type        = number
+  description = "Max. Nodes im User-Pool."
+  default     = 5
 }
 
 variable "vnet_address_space" {

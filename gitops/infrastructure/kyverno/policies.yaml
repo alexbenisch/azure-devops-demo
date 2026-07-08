@@ -42,8 +42,8 @@ spec:
               kinds: ["Pod"]
               namespaces: ["app"]
       validate:
-        message: "Images müssen aus acrdevopsdev.azurecr.io stammen."
+        message: "Images müssen aus acrdevopsdevddg62.azurecr.io stammen."
         pattern:
           spec:
             containers:
-              - image: "acrdevopsdev.azurecr.io/*"
+              - image: "acrdevopsdevddg62.azurecr.io/*"

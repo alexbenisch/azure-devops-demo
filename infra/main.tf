@@ -67,6 +67,11 @@ module "aks" {
   acr_id                 = module.acr.id
   log_analytics_id       = module.monitoring.workspace_id
   admin_group_object_ids = var.admin_group_object_ids
+  vm_size                = var.aks_vm_size
+  system_node_min        = var.aks_system_node_min
+  system_node_max        = var.aks_system_node_max
+  user_node_min          = var.aks_user_node_min
+  user_node_max          = var.aks_user_node_max
   tags                   = local.common_tags
 }
 

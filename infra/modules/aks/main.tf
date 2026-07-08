@@ -14,10 +14,10 @@ resource "azurerm_kubernetes_cluster" "this" {
 
   default_node_pool {
     name                         = "system"
-    vm_size                      = "Standard_D2s_v5"
+    vm_size                      = var.vm_size
     enable_auto_scaling          = true
-    min_count                    = 1
-    max_count                    = 3
+    min_count                    = var.system_node_min
+    max_count                    = var.system_node_max
     vnet_subnet_id               = var.subnet_id
     orchestrator_version         = var.kubernetes_version
     only_critical_addons_enabled = true
@@ -44,6 +44,7 @@ resource "azurerm_kubernetes_cluster" "this" {
 
   # Azure AD RBAC für Kubernetes-Autorisierung.
   azure_active_directory_role_based_access_control {
+    managed                = true
     azure_rbac_enabled     = true
     admin_group_object_ids = var.admin_group_object_ids
   }
@@ -66,10 +67,10 @@ resource "azurerm_kubernetes_cluster" "this" {
 resource "azurerm_kubernetes_cluster_node_pool" "user" {
   name                  = "user"
   kubernetes_cluster_id = azurerm_kubernetes_cluster.this.id
-  vm_size               = "Standard_D2s_v5"
+  vm_size               = var.vm_size
   enable_auto_scaling   = true
-  min_count             = 1
-  max_count             = 5
+  min_count             = var.user_node_min
+  max_count             = var.user_node_max
   vnet_subnet_id        = var.subnet_id
   orchestrator_version  = var.kubernetes_version
   mode                  = "User"

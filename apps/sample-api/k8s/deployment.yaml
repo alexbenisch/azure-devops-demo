@@ -19,6 +19,7 @@ spec:
     metadata:
       labels:
         app: sample-api
+        app.kubernetes.io/version: "f422c99"
     spec:
       securityContext:
         runAsNonRoot: true
@@ -27,7 +28,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: api
-          image: acrdevopsdev.azurecr.io/sample-api:latest  # CI überschreibt den Tag
+          image: acrdevopsdevddg62.azurecr.io/sample-api:f422c99  # CI überschreibt den Tag
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8000
