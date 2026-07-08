@@ -13,6 +13,6 @@ spec:
   path: ./apps/sample-api/k8s
   prune: true
   wait: true
-  # Apps erst deployen, wenn die Infrastruktur (Ingress, cert-manager, RBAC) steht.
+  # Apps erst deployen, wenn Controller + Configs (Namespace, RBAC, Policies) stehen.
   dependsOn:
-    - name: infrastructure
+    - name: infra-configs

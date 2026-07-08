@@ -1,9 +1,10 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
+# Tier 1 "controllers": Operatoren/HelmReleases, die CRDs mitbringen
+# (cert-manager, kyverno, kube-prometheus-stack) + Ingress.
 resources:
   - sources.yaml
   - ingress-nginx/
   - cert-manager/
   - kyverno/
   - monitoring/
-  - ../rbac
